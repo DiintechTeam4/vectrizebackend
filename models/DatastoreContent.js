@@ -5,6 +5,11 @@ const DatastoreContentSchema = new mongoose.Schema(
     clientId: {
       type: String,
     },
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      required: [true, "Project ID is required"],
+    },
     type: {
       type: String,
       required: [true, "Content type is required"],

@@ -7,6 +7,7 @@ const superadminRoutes = require('./routes/superadmin.js');
 const adminRoutes = require('./routes/admin.js');
 const clientRoutes = require('./routes/client.js');
 const datastoreRoutes = require('./routes/datastore.js')
+const projectRoutes = require('./routes/project.js')
 
 const { checkClientAccess } = require('./middlewares/authmiddleware.js');
 
@@ -26,6 +27,7 @@ app.use('/api/v1/superadmin',superadminRoutes)
 app.use('/api/v1/admin',adminRoutes)
 app.use('/api/v1/client',clientRoutes)
 app.use('/api/v1/datastore',datastoreRoutes)
+app.use('/api/v1/projects',projectRoutes)
 
 
 // app.use('/api/v1/clients/:clientId/datastore',

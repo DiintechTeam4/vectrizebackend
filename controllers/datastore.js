@@ -16,11 +16,16 @@ exports.addContent = async (req, res) => {
     const type = Array.isArray(fields.type) ? fields.type[0] : fields.type;
     const title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
     const content = Array.isArray(fields.content) ? fields.content[0] : fields.content; // For text/URL types
+    const projectId = Array.isArray(fields.projectId) ? fields.projectId[0] : fields.projectId; // Project ID
     const uploadedFile = Array.isArray(files.contentFile) ? files.contentFile[0] : files.contentFile; // 'contentFile' is the field name from frontend
 
     // Basic Validation
     if (!title) {
       return res.status(400).json({ success: false, message: "Title is required" });
+    }
+
+    if (!projectId) {
+      return res.status(400).json({ success: false, message: "Project ID is required" });
     }
 
     const fileTypes = ['Image', 'Video', 'PDF'];
@@ -111,6 +116,7 @@ exports.addContent = async (req, res) => {
     // Create a new datastore content document
     const newContent = new DatastoreContent({
       clientId,
+      projectId,
       type,
       title,
       content: contentValue, // This will be S3 key or URL
@@ -137,8 +143,16 @@ exports.addContent = async (req, res) => {
 exports.getContents = async (req, res) => {
   try {
     const {clientId} = req.client.userId
-    // Fetch all content from the database
-    const contents = await DatastoreContent.find({clientId});
+    const { projectId } = req.query; // Get projectId from query params
+    
+    // Build query
+    const query = { clientId };
+    if (projectId) {
+      query.projectId = projectId;
+    }
+    
+    // Fetch content from the database
+    const contents = await DatastoreContent.find(query).populate('projectId', 'name');
 
     res.status(200).json({
       success: true,
@@ -270,6 +284,7 @@ exports.updateContent = async (req, res) => {
     if (fields.type) updates.type = Array.isArray(fields.type) ? fields.type[0] : fields.type;
     if (fields.title) updates.title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
     if (fields.content) updates.content = Array.isArray(fields.content) ? fields.content[0] : fields.content;
+    if (fields.projectId) updates.projectId = Array.isArray(fields.projectId) ? fields.projectId[0] : fields.projectId;
 
     const uploadedFile = Array.isArray(files.contentFile) ? files.contentFile[0] : files.contentFile; // 'contentFile' is the field name from frontend
 
@@ -354,6 +369,10 @@ exports.updateContent = async (req, res) => {
        // Allow updating type if it's not changing to/from a file type without a file upload
         if (updates.type && !(fileTypes.includes(updates.type) !== isFileContent && !uploadedFile)) {
             content.type = updates.type;
+        }
+        // Update projectId if provided
+        if (updates.projectId !== undefined) {
+            content.projectId = updates.projectId;
         }
 
     }
