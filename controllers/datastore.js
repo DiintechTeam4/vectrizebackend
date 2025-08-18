@@ -1,12 +1,14 @@
 const DatastoreContent = require('../models/DatastoreContent');
-const { s3Client } = require('../utils/s3'); // Import s3Client if needed for other operations
+const { s3Client, getobject } = require('../utils/s3'); // Import s3Client if needed for other operations
 const { DeleteObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3'); // Import DeleteObjectCommand and PutObjectCommand
 const fs = require('fs'); // Import fs to read file streams
 const { Buffer } = require('buffer'); // Import Buffer to create text buffer
 
 exports.addContent = async (req, res) => {
   try {
-    const {clientId} = req.client.userId;
+    console.log(req.client);
+    console.log(req.client.userId);
+    const clientId = req.client.userId;
     console.log(clientId)
     // Access form fields and files from the middleware
     const fields = req.formFields;
@@ -142,7 +144,7 @@ exports.addContent = async (req, res) => {
 
 exports.getContents = async (req, res) => {
   try {
-    const {clientId} = req.client.userId
+    const clientId = req.client.userId
     const { projectId } = req.query; // Get projectId from query params
     
     // Build query
@@ -153,6 +155,16 @@ exports.getContents = async (req, res) => {
     
     // Fetch content from the database
     const contents = await DatastoreContent.find(query).populate('projectId', 'name');
+
+    console.log(contents)
+
+    for(const content of contents){
+      if(content.content){
+        const contentUrl = await getobject(content.content);
+        content.content = contentUrl;
+        console.log(contentUrl)
+      }
+    }
 
     res.status(200).json({
       success: true,
