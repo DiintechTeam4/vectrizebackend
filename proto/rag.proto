@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package rag;
+
+option go_package = "rag/proto;proto";
+
+service RagService {
+
+  // Store individual text data with metadata
+  rpc StoreData (StoreDataRequest) returns (StoreDataResponse);
+  
+  // Query for relevant data using a query string (embedding-based retrieval)
+  rpc QueryData (QueryDataRequest) returns (QueryDataResponse);
+  
+  // Process document from URL with book and chapter information
+  rpc ProcessDocument (ProcessDocumentRequest) returns (ProcessDocumentResponse);
+}
+
+// History entry for conversation context
+message HistoryEntry {
+  string user = 1;
+  string ai = 2;
+}
+
+message QueryDataRequest {
+  string query_id = 1;          // required
+  string session_id = 2;        // required
+  repeated HistoryEntry history = 3;  // optional - conversation history
+  string query = 4;             // required
+  string book_name = 5;         // required
+  string chapter_name = 6;      // optional
+  string client_id = 7;         // required
+  string llm = 8;               // required - openai | gemini | rag_only | other
+  int32 top_k = 9;              // required
+  bool tts = 10;                // optional - text-to-speech flag
+}
+
+message QueryDataResponse {
+  repeated QueryResult results = 1;
+  string latency = 2;           // total latency
+  string query_id = 3;          // required - echoed from request
+  string session_id = 4;        // required - echoed from request  
+  string client_id = 5;         // required - echoed from request
+  string llm_response = 6;      // optional - generated answer from LLM
+  string rag_response = 7;      // optional - raw RAG results summary
+  string rag_latency = 8;       // optional - RAG processing time
+  string llm_latency = 9;       // optional - LLM processing time
+}
+
+message StoreDataRequest {
+  string text = 1;
+  map<string, string> metadata = 2;
+  string client_id = 3;        // required - for client data isolation
+}
+
+message StoreDataResponse {
+  bool success = 1;
+  string message = 2;
+  string latency = 3;
+}
+
+message QueryResult {
+  string text = 1;
+  map<string, string> metadata = 2;
+  float score = 3;
+}
+
+message ProcessDocumentRequest {
+  string url = 1;
+  string book_name = 2;
+  string chapter_name = 3;
+  string client_id = 4;
+}
+
+message ProcessDocumentResponse {
+  bool success = 1;
+  string message = 2;
+  int32 total_batches = 3;
+  int32 processed_chunks = 4;
+  string total_latency = 5;
+  string chunking_latency = 6;
+  string embedding_latency = 7;
+} 
+
+
