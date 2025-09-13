@@ -10,7 +10,7 @@ const datastoreRoutes = require('./routes/datastore.js')
 const projectRoutes = require('./routes/project.js')
 const rag = require('./routes/rag.js')
 const { checkClientAccess } = require('./middlewares/authmiddleware.js');
-
+const scrapperRoutes = require('./routes/scraperRoutes.js')
 const app = express();
 
 dotenv.config();
@@ -29,6 +29,7 @@ app.use('/api/v1/client',clientRoutes)
 app.use('/api/v1/datastore',datastoreRoutes)
 app.use('/api/v1/projects',projectRoutes)
 app.use('/api/v1/rag',rag)
+app.use('/api/v1/scrapper',scrapperRoutes)
 
 
 // app.use('/api/v1/clients/:clientId/datastore',
