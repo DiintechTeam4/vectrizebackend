@@ -30,7 +30,7 @@ exports.processDocument = async (req, res) => {
       const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
       const s3Region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION;
-      const s3Bucket = process.env.S3_BUCKET_NAME;
+      const s3Bucket = process.env.AWS_BUCKET_NAME;
       if (!s3Region || !s3Bucket) {
         // No S3 configured; skip conversion and use original URL
         console.warn('[processDocument] S3 config missing, skipping TXT->PDF conversion. Using original URL.');
