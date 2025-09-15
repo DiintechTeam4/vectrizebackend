@@ -33,6 +33,8 @@ message QueryDataRequest {
   string llm = 8;               // required - openai | gemini | rag_only | other
   int32 top_k = 9;              // required
   bool tts = 10;                // optional - text-to-speech flag
+  string system_prompt = 11;    // optional - additional system prompt to be added to LLM
+  string llm_model = 12;        // optional - specific LLM model (e.g., gpt-3.5-turbo, gpt-4, etc.)
 }
 
 message QueryDataResponse {

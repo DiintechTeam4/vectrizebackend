@@ -42,6 +42,8 @@ exports.queryData = async (req, res) => {
       llm,
       top_k,
       tts,
+      system_prompt,
+      llm_model,
     } = req.body || {};
 
     if (!query_id || !session_id || !query || !book_name || !client_id || !llm || typeof top_k !== 'number') {
@@ -62,6 +64,8 @@ exports.queryData = async (req, res) => {
       llm,
       top_k,
       tts: !!tts,
+      system_prompt: system_prompt || '',
+      llm_model: llm_model || '',
     };
 
     const response = await callGrpc(client.QueryData, payload);
