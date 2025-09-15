@@ -32,7 +32,11 @@ exports.processDocument = async (req, res) => {
       const s3Region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION;
       const s3Bucket = process.env.S3_BUCKET_NAME;
       if (!s3Region || !s3Bucket) {
-        return res.status(500).json({ success: false, message: 'S3 configuration missing: AWS_REGION and S3_BUCKET_NAME are required' });
+        // No S3 configured; skip conversion and use original URL
+        console.warn('[processDocument] S3 config missing, skipping TXT->PDF conversion. Using original URL.');
+        const payload = { url: finalUrl, book_name, chapter_name: chapter_name || '', client_id };
+        const response = await callGrpc(client.ProcessDocument, payload);
+        return res.status(200).json({ success: true, data: response, used_url: finalUrl, note: 'Skipped TXT->PDF conversion (missing S3 config)' });
       }
 
       // 1) Download text
